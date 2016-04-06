@@ -9,9 +9,9 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "6389FB681CADD98500B5731A"
@@ -56,9 +56,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6389FB681CADD98500B5731A"
-            BuildableName = "YapTaskQueue.app"
-            BlueprintName = "YapTaskQueue"
+            BlueprintIdentifier = "6389FB7C1CADD98600B5731A"
+            BuildableName = "YapTaskQueueTests.xctest"
+            BlueprintName = "YapTaskQueueTests"
             ReferencedContainer = "container:YapTaskQueue.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -75,16 +75,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6389FB681CADD98500B5731A"
-            BuildableName = "YapTaskQueue.app"
-            BlueprintName = "YapTaskQueue"
+            BlueprintIdentifier = "6389FB7C1CADD98600B5731A"
+            BuildableName = "YapTaskQueueTests.xctest"
+            BlueprintName = "YapTaskQueueTests"
             ReferencedContainer = "container:YapTaskQueue.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -94,16 +93,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6389FB681CADD98500B5731A"
-            BuildableName = "YapTaskQueue.app"
-            BlueprintName = "YapTaskQueue"
-            ReferencedContainer = "container:YapTaskQueue.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

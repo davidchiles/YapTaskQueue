@@ -90,8 +90,8 @@ public class TestHandler:YapTaskQueueThreadHandler {
 func deleteFiles(url:NSURL) {
     let fileManager = NSFileManager.defaultManager()
     let enumerator = fileManager.enumeratorAtURL(url, includingPropertiesForKeys: nil, options: NSDirectoryEnumerationOptions(), errorHandler: nil)
-    while let file = enumerator?.nextObject() as? String {
-        try! fileManager.removeItemAtURL(url.URLByAppendingPathComponent(file))
+    while let file = enumerator?.nextObject() as? NSURL {
+        try! fileManager.removeItemAtURL(file)
     }
 }
 
@@ -188,9 +188,49 @@ class YapTaskQueueTests: XCTestCase {
         self.waitForExpectationsWithTimeout(100, handler: nil)
     }
     
-    func testMultipleActionsMultipleThreads () {
-        let databae = setupDatabase(#function)
+    func setupQueue(database:YapDatabase, handler:TestHandler, actionCount:Int, name:String) {
+        let connection = database.newConnection()
+        let ext = YapTaskQueueBroker(parentViewName: "master", handler: handler, filtering: { (threadName) -> Bool in
+            return threadName == name
+        })
+        database.registerExtension(ext, withName: "broker-\(name)")
         
+        connection.asyncReadWriteWithBlock({ (transaction) in
+            for actionIndex in 0..<actionCount {
+                let actionName = "\(actionIndex)"
+                let action = TestActionObject(key: actionName, collection: "collection\(name)", name: actionName, queue: name)
+                
+                    transaction.setObject(action, forKey: action.key, inCollection: action.collection)
+                
+            }
+        })
+    }
+    
+    func testMultipleActionsMultipleThreads () {
+        let database = setupDatabase(#function)
+        let threadCount = 10
+        for threadIndex in 0..<threadCount {
+            let expectation = self.expectationWithDescription("test Multiple \(threadIndex)")
+            let actionCount = (threadIndex+1) * 20
+            var currentCount = 0
+            let handler = TestHandler(handleBlock: { (action) -> Bool in
+                let actionNumber = Int(action.name)!
+                print("\(threadIndex): \(currentCount) - \(actionNumber)")
+                XCTAssertEqual(currentCount, actionNumber,"\(threadIndex): \(currentCount) - \(actionNumber)")
+                
+                if (actionCount-1 == currentCount) {
+                    expectation.fulfill()
+                }
+                
+                currentCount+=1
+                
+                return true
+            })
+            
+            self.setupQueue(database, handler: handler, actionCount: actionCount, name: "\(threadIndex)")
+        }
+        
+        self.waitForExpectationsWithTimeout(1000, handler: nil)
         
     }
     
