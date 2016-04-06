@@ -7,43 +7,51 @@
 //
 
 import Foundation
-import YapDatabase.YapDatabaseView
+import YapDatabase.YapDatabaseFilteredView
 
-public class YapTaskQueueExtension: YapDatabaseView {
+public protocol YapTaskQueueThreadHandler {
+    //TODO: Change to completion block?
+    func handleNextItem(action:YapTaskQueueAction) -> Bool
+}
+
+public class YapTaskQueueBroker: YapDatabaseFilteredView {
     
     private var databaseConnection:YapDatabaseConnection? = nil
+    private let isolationQueue = dispatch_queue_create("YapTaskQueueExtension", DISPATCH_QUEUE_SERIAL)
     private let operationQueue = NSOperationQueue()
+    private var handler:YapTaskQueueThreadHandler
+    private var currentWork = [String:YapTaskQueueAction]()
     
-    public convenience init(options:YapDatabaseViewOptions) {
-        
-        let grouping = YapDatabaseViewGrouping.withObjectBlock { (transaction, collection, key, object) -> String? in
-            guard let actionObject = object as? YapTaskQueueAction else {
-                return nil
-            }
-            return actionObject.queueName()
+    public init(parentViewName viewName: String, handler:YapTaskQueueThreadHandler, filtering: (threadName:String) -> Bool) {
+        self.operationQueue.maxConcurrentOperationCount = 1
+        self.handler = handler
+        let filter = YapDatabaseViewFiltering.withKeyBlock { (transaction, group, collection, key) -> Bool in
+            return filtering(threadName: group)
         }
-        
-        let sorting = YapDatabaseViewSorting.withObjectBlock { (transaction, group, collection1, key1, object1, collection2, key2, object2) -> NSComparisonResult in
-            guard let actionObject1 = object1 as? YapTaskQueueAction else {
-                return .OrderedSame
-            }
-            guard let actionObject2 = object2 as? YapTaskQueueAction else {
-                return .OrderedSame
-            }
-            
-            return actionObject1.sort(actionObject2)
-        }
-        
-        self.init(grouping: grouping, sorting: sorting, versionTag: nil, options: options)
+        super.init(parentViewName: viewName, filtering: filter, versionTag: nil, options:nil)
         self.addObserver(self, forKeyPath: "registeredDatabase", options: .New, context: nil)
-    }
-    
-    deinit {
-        self.removeObserver(self, forKeyPath: "registeredDatabase")
     }
     
     override public func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
         self.didRegisterExtension()
+    }
+    
+    internal func actionForThread(thread:String) -> YapTaskQueueAction? {
+        var action:YapTaskQueueAction? = nil
+        dispatch_sync(self.isolationQueue) { 
+            action = self.currentWork[thread]
+        }
+        return action
+    }
+    
+    internal func setAction(action:YapTaskQueueAction?, thread:String) {
+        dispatch_async(self.isolationQueue) {
+            if let act = action {
+                self.currentWork.updateValue(act, forKey: thread)
+            } else {
+                self.currentWork.removeValueForKey(thread)
+            }
+        }
     }
     
     func didRegisterExtension() {
@@ -73,29 +81,88 @@ public class YapTaskQueueExtension: YapDatabaseView {
     }
     
     func checkForActions() {
+        var groups:[String]? = nil
         self.databaseConnection?.asyncReadWriteWithBlock({ (transaction) in
             guard let name = self.registeredName else {
                 return
             }
             
-            let viewTransaction = transaction.ext(name) as? YapDatabaseViewTransaction
-            guard let groups = viewTransaction?.allGroups() else {
+            guard let viewTransaction = transaction.ext(name) as? YapDatabaseViewTransaction else {
+                return
+            }
+            groups = viewTransaction.allGroups()
+            }, completionQueue: self.operationQueue.underlyingQueue, completionBlock: {
+                if let groupsArray = groups {
+                    for groupName in groupsArray {
+                        self.checkThread(groupName)
+                    }
+                }
+                
+        })
+        self.databaseConnection?.asyncReadWriteWithBlock({ (transaction) in
+            
+            
+            
+        })
+    }
+    
+    func checkThread(threadName:String) {
+        var newAction:YapTaskQueueAction? = nil
+        self.databaseConnection?.asyncReadWriteWithBlock({ (transaction) in
+            guard let name = self.registeredName else {
                 return
             }
             
-            for groupName in groups {
-                viewTransaction?.enumerateKeysAndObjectsInGroup(groupName, usingBlock: { (collection, key, object, row, stop) in
-                    guard let action = (object as? YapTaskQueueAction)?.action() else {
-                        return
-                    }
-                    do {
-                        try action()
-                    } catch {
+            guard let viewTransaction = transaction.ext(name) as? YapDatabaseViewTransaction else {
+                return
+            }
+            
+            viewTransaction.enumerateKeysAndObjectsInGroup(threadName, usingBlock: { (collection, key, object, row, stop) in
+                
+                guard let act = object as? YapTaskQueueAction else {
+                    return
+                }
+                
+                guard let queueName = act.queueName() else {
+                    return
+                }
+                
+                //If currently working don't do anymore work on that queue
+                if self.actionForThread(queueName) == nil {
+                    self.setAction(act, thread: threadName)
+                    newAction = act
+                }
+                
+                stop.initialize(true)
+            })
+            
+            }, completionQueue: self.operationQueue.underlyingQueue, completionBlock: {
+                guard let action = newAction else {
+                    return
+                }
+                
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+                    let result = self.handler.handleNextItem(action)
+                    if result {
+                        self.databaseConnection?.readWriteWithBlock({ (t) in
+                            t.removeObjectForKey(action.yapKey(), inCollection: action.yapCollection())
+                            self.setAction(nil, thread: threadName)
+                            
+                        })
+                        
+                        self.operationQueue.addOperationWithBlock({ 
+                            self.checkThread(threadName)
+                        })
+                        
+                        
+                    } else {
                         
                     }
-                    
                 })
-            }
         })
+    }
+    
+    deinit {
+        self.removeObserver(self, forKeyPath: "registeredDatabase")
     }
 }

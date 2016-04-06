@@ -8,10 +8,9 @@
 
 import Foundation
 
-public typealias YapAction = () throws -> Bool
-
 public protocol YapTaskQueueAction {
-    func action() -> YapAction?
+    func yapKey() -> String
+    func yapCollection() -> String
     func queueName() -> String?
     func sort(otherObject:YapTaskQueueAction) -> NSComparisonResult
 }

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5607C298E19ED9D08B510A7C /* Pods_YapTaskQueue.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FAA1E1F74C287857CE4FB /* Pods_YapTaskQueue.framework */; };
+		6331FABC1CB46A7E0087E71B /* YapTaskQueueMasterBroker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6331FABB1CB46A7E0087E71B /* YapTaskQueueMasterBroker.swift */; };
 		6389FB6D1CADD98600B5731A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6389FB6C1CADD98600B5731A /* AppDelegate.swift */; };
 		6389FB6F1CADD98600B5731A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6389FB6E1CADD98600B5731A /* ViewController.swift */; };
 		6389FB721CADD98600B5731A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6389FB701CADD98600B5731A /* Main.storyboard */; };
@@ -30,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		35A90FE5FDBE9D20A3328A3E /* Pods-YapTaskQueue.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YapTaskQueue.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YapTaskQueue/Pods-YapTaskQueue.debug.xcconfig"; sourceTree = "<group>"; };
+		6331FABB1CB46A7E0087E71B /* YapTaskQueueMasterBroker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = YapTaskQueueMasterBroker.swift; path = Classes/YapTaskQueueMasterBroker.swift; sourceTree = "<group>"; };
 		6389FB691CADD98500B5731A /* YapTaskQueue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YapTaskQueue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6389FB6C1CADD98600B5731A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6389FB6E1CADD98600B5731A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				6389FB8D1CADDB2E00B5731A /* YapTaskQueueExtension.swift */,
+				6331FABB1CB46A7E0087E71B /* YapTaskQueueMasterBroker.swift */,
 				6389FB8F1CADDCEB00B5731A /* YapTaskQueueAction.swift */,
 			);
 			name = Classes;
@@ -287,6 +290,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6389FB6F1CADD98600B5731A /* ViewController.swift in Sources */,
+				6331FABC1CB46A7E0087E71B /* YapTaskQueueMasterBroker.swift in Sources */,
 				6389FB8E1CADDB2E00B5731A /* YapTaskQueueExtension.swift in Sources */,
 				6389FB6D1CADD98600B5731A /* AppDelegate.swift in Sources */,
 				6389FB901CADDCEB00B5731A /* YapTaskQueueAction.swift in Sources */,
