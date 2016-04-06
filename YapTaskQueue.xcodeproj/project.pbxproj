@@ -15,7 +15,7 @@
 		6389FB741CADD98600B5731A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6389FB731CADD98600B5731A /* Assets.xcassets */; };
 		6389FB771CADD98600B5731A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6389FB751CADD98600B5731A /* LaunchScreen.storyboard */; };
 		6389FB821CADD98600B5731A /* YapTaskQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6389FB811CADD98600B5731A /* YapTaskQueueTests.swift */; };
-		6389FB8E1CADDB2E00B5731A /* YapTaskQueueExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6389FB8D1CADDB2E00B5731A /* YapTaskQueueExtension.swift */; };
+		6389FB8E1CADDB2E00B5731A /* YapTaskQueueBroker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6389FB8D1CADDB2E00B5731A /* YapTaskQueueBroker.swift */; };
 		6389FB901CADDCEB00B5731A /* YapTaskQueueAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6389FB8F1CADDCEB00B5731A /* YapTaskQueueAction.swift */; };
 /* End PBXBuildFile section */
 
@@ -42,7 +42,7 @@
 		6389FB7D1CADD98600B5731A /* YapTaskQueueTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YapTaskQueueTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6389FB811CADD98600B5731A /* YapTaskQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YapTaskQueueTests.swift; sourceTree = "<group>"; };
 		6389FB831CADD98600B5731A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6389FB8D1CADDB2E00B5731A /* YapTaskQueueExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = YapTaskQueueExtension.swift; path = Classes/YapTaskQueueExtension.swift; sourceTree = "<group>"; };
+		6389FB8D1CADDB2E00B5731A /* YapTaskQueueBroker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = YapTaskQueueBroker.swift; path = Classes/YapTaskQueueBroker.swift; sourceTree = "<group>"; };
 		6389FB8F1CADDCEB00B5731A /* YapTaskQueueAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = YapTaskQueueAction.swift; path = Classes/YapTaskQueueAction.swift; sourceTree = "<group>"; };
 		6B3EFEE7CF4DD867704D99C0 /* Pods-YapTaskQueue.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YapTaskQueue.release.xcconfig"; path = "Pods/Target Support Files/Pods-YapTaskQueue/Pods-YapTaskQueue.release.xcconfig"; sourceTree = "<group>"; };
 		AA5FAA1E1F74C287857CE4FB /* Pods_YapTaskQueue.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_YapTaskQueue.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -113,7 +113,7 @@
 		6389FB8C1CADDB0300B5731A /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				6389FB8D1CADDB2E00B5731A /* YapTaskQueueExtension.swift */,
+				6389FB8D1CADDB2E00B5731A /* YapTaskQueueBroker.swift */,
 				6331FABB1CB46A7E0087E71B /* YapTaskQueueMasterBroker.swift */,
 				6389FB8F1CADDCEB00B5731A /* YapTaskQueueAction.swift */,
 			);
@@ -291,7 +291,7 @@
 			files = (
 				6389FB6F1CADD98600B5731A /* ViewController.swift in Sources */,
 				6331FABC1CB46A7E0087E71B /* YapTaskQueueMasterBroker.swift in Sources */,
-				6389FB8E1CADDB2E00B5731A /* YapTaskQueueExtension.swift in Sources */,
+				6389FB8E1CADDB2E00B5731A /* YapTaskQueueBroker.swift in Sources */,
 				6389FB6D1CADD98600B5731A /* AppDelegate.swift in Sources */,
 				6389FB901CADDCEB00B5731A /* YapTaskQueueAction.swift in Sources */,
 			);
