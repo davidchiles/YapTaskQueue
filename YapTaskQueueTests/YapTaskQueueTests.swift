@@ -40,7 +40,7 @@ class TestActionObject:NSObject, YapTaskQueueAction, NSCoding {
         return self.date.compare(otherAction.date)
     }
     
-    func queueName() -> String? {
+    func queueName() -> String {
         return self.queue
     }
     
@@ -65,7 +65,7 @@ class TestActionObject:NSObject, YapTaskQueueAction, NSCoding {
     }
 }
 
-public class TestHandler:YapTaskQueueThreadHandler {
+public class TestHandler:YapTaskQueueHandler {
     
     var handleBlock:(action:TestActionObject) -> Bool
     var connection:YapDatabaseConnection?
@@ -74,16 +74,15 @@ public class TestHandler:YapTaskQueueThreadHandler {
         self.handleBlock = handleBlock
     }
     
-    public func handleNextItem(action: YapTaskQueueAction) -> Bool {
+    public func handleNextItem(action: YapTaskQueueAction, completion: (sucess: Bool) -> Void) {
+    
         guard let testObject = action as? TestActionObject  else {
-            return true
+            completion(sucess: false)
+            return
         }
         
         let result =  self.handleBlock(action: testObject)
-        self.connection?.readWriteWithBlock({ (transaction) in
-            transaction.removeObjectForKey(testObject.key, inCollection: testObject.collection)
-        })
-        return result
+        completion(sucess: result)
     }
 }
 
@@ -95,16 +94,20 @@ func deleteFiles(url:NSURL) {
     }
 }
 
-func setupDatabase(suffix:String) -> YapDatabase {
+func createDatabase(suffix:String) -> YapDatabase {
     let paths = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
-
-   let baseDir = NSURL.fileURLWithPath(paths.first ?? NSTemporaryDirectory())
+    
+    let baseDir = NSURL.fileURLWithPath(paths.first ?? NSTemporaryDirectory())
     deleteFiles(baseDir)
     let file = NSURL.fileURLWithPath(#file).lastPathComponent!.componentsSeparatedByString(".").first!
     let name = "\(file)-\(suffix).sqlite"
     let path = baseDir.URLByAppendingPathComponent(name).path
     // Setup datbase
-    let database = YapDatabase(path: path!)
+    return YapDatabase(path: path!)
+}
+
+func setupDatabase(suffix:String) -> YapDatabase {
+    let database = createDatabase(suffix)
     
     // Setup Extension
     let options = YapDatabaseViewOptions()
@@ -123,6 +126,24 @@ class YapTaskQueueTests: XCTestCase {
     override func tearDown() {
 
         super.tearDown()
+    }
+    
+    func setupQueue(database:YapDatabase, handler:TestHandler, actionCount:Int, name:String) {
+        let connection = database.newConnection()
+        let ext = YapTaskQueueBroker(parentViewName: "master", handler: handler, filtering: { (threadName) -> Bool in
+            return threadName == name
+        })
+        database.registerExtension(ext, withName: "broker-\(name)")
+        
+        connection.asyncReadWriteWithBlock({ (transaction) in
+            for actionIndex in 0..<actionCount {
+                let actionName = "\(actionIndex)"
+                let action = TestActionObject(key: actionName, collection: "collection\(name)", name: actionName, queue: name)
+                
+                transaction.setObject(action, forKey: action.key, inCollection: action.collection)
+                
+            }
+        })
     }
     
     func testOneAction() {
@@ -188,22 +209,18 @@ class YapTaskQueueTests: XCTestCase {
         self.waitForExpectationsWithTimeout(100, handler: nil)
     }
     
-    func setupQueue(database:YapDatabase, handler:TestHandler, actionCount:Int, name:String) {
-        let connection = database.newConnection()
-        let ext = YapTaskQueueBroker(parentViewName: "master", handler: handler, filtering: { (threadName) -> Bool in
-            return threadName == name
-        })
-        database.registerExtension(ext, withName: "broker-\(name)")
+    func testSteup() {
+        let database = createDatabase(#function)
+        let handler = TestHandler { (action) -> Bool in
+            return true
+        }
+        let result = YapTaskQueueBroker.setupWithDatabase(database, name: "queue1", handler: handler) { (queueName) -> Bool in
+            return true
+        }
         
-        connection.asyncReadWriteWithBlock({ (transaction) in
-            for actionIndex in 0..<actionCount {
-                let actionName = "\(actionIndex)"
-                let action = TestActionObject(key: actionName, collection: "collection\(name)", name: actionName, queue: name)
-                
-                    transaction.setObject(action, forKey: action.key, inCollection: action.collection)
-                
-            }
-        })
+        XCTAssertTrue(result,"Error Setting up database")
+        let ext = database.registeredExtension("queue1")
+        XCTAssertNotNil(ext,"No extension registered")
     }
     
     func testMultipleActionsMultipleThreads () {

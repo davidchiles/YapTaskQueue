@@ -8,9 +8,17 @@
 
 import Foundation
 
+/// Implement this protocol in order for an action to enter a queue and eventually be passed to a YapTaskQueueHandler
 public protocol YapTaskQueueAction {
+    /// The yap key of this item
     func yapKey() -> String
+    
+    /// The yap collection of this item
     func yapCollection() -> String
-    func queueName() -> String?
+    
+    /// The queue that this item is in.
+    func queueName() -> String
+    
+    /// How this item should be sorted compared to other items in it's queue
     func sort(otherObject:YapTaskQueueAction) -> NSComparisonResult
 }
