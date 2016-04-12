@@ -10,7 +10,7 @@ import XCTest
 import YapDatabase
 @testable import YapTaskQueue
 
-class TestActionObject:NSObject, YapTaskQueueAction, NSCoding {
+class TestActionObject:NSObject, YapTaskQueueAction, NSCoding, NSCopying {
     var key:String
     var collection:String
     
@@ -44,6 +44,13 @@ class TestActionObject:NSObject, YapTaskQueueAction, NSCoding {
         return self.queue
     }
     
+    ///NSCopying
+    func copyWithZone(zone: NSZone) -> AnyObject {
+        let copy = TestActionObject(key: self.key, collection: self.collection, name: self.name, queue: self.queue)
+        copy.date = self.date
+        return copy
+    }
+    
     ///NSCoding
     internal func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(self.name, forKey: "name")
@@ -67,22 +74,22 @@ class TestActionObject:NSObject, YapTaskQueueAction, NSCoding {
 
 public class TestHandler:YapTaskQueueHandler {
     
-    var handleBlock:(action:TestActionObject) -> Bool
+    var handleBlock:(action:TestActionObject) -> (Bool,NSTimeInterval)
     var connection:YapDatabaseConnection?
     
-    init(handleBlock:(TestActionObject) -> Bool) {
+    init(handleBlock:(TestActionObject) -> (Bool,NSTimeInterval)) {
         self.handleBlock = handleBlock
     }
     
-    public func handleNextItem(action: YapTaskQueueAction, completion: (sucess: Bool) -> Void) {
+    public func handleNextItem(action: YapTaskQueueAction, completion: (sucess: Bool, retryTimeout: NSTimeInterval) -> Void) {
     
         guard let testObject = action as? TestActionObject  else {
-            completion(sucess: false)
+            completion(sucess: false, retryTimeout: DBL_MAX)
             return
         }
         
-        let result =  self.handleBlock(action: testObject)
-        completion(sucess: result)
+        let (result,retryTimout) =  self.handleBlock(action: testObject)
+        completion(sucess: result, retryTimeout: retryTimout)
     }
 }
 
@@ -146,14 +153,50 @@ class YapTaskQueueTests: XCTestCase {
         })
     }
     
+    func testMoveFromOneQueueToAnother() {
+        let database = createDatabase(#function)
+        let connection = database.newConnection()
+        let expectation = self.expectationWithDescription(#function)
+        
+        let firstHanlder = TestHandler { (action) -> (Bool,NSTimeInterval) in
+            let newAction = action.copy() as! TestActionObject
+            newAction.key = "newKey"
+            newAction.queue = "queue2"
+            connection.readWriteWithBlock({ (transaction) in
+                transaction.setObject(newAction, forKey: newAction.yapKey(), inCollection: newAction.yapCollection())
+            })
+            return (true,0)
+        }
+        let secondHandler = TestHandler { (action) -> (Bool,NSTimeInterval) in
+            expectation.fulfill()
+            return (true,0)
+        }
+        YapTaskQueueBroker.setupWithDatabase(database, name: "handler1", handler: firstHanlder) { (queueName) -> Bool in
+            return queueName == "queue1"
+        }
+        
+        YapTaskQueueBroker.setupWithDatabase(database, name: "handler2", handler: secondHandler) { (queueName) -> Bool in
+            return queueName == "queue2"
+        }
+        
+        let action = TestActionObject(key: "key", collection: "collection", name: "name", queue: "queue1")
+        connection.readWriteWithBlock { (transaction) in
+            transaction.setObject(action, forKey: action.yapKey(), inCollection: action.yapCollection())
+        }
+        
+        
+        self.waitForExpectationsWithTimeout(10, handler: nil)
+        
+    }
+    
     func testOneAction() {
         let database  = setupDatabase(#function)
         let expectation = self.expectationWithDescription("test one action")
         
-        let handler = TestHandler { (action) -> Bool in
+        let handler = TestHandler { (action) -> (Bool,NSTimeInterval) in
             print("\(action.name) - \(action.date)")
             expectation.fulfill()
-            return true
+            return (true,0)
         }
         handler.connection = database.newConnection()
         
@@ -175,25 +218,25 @@ class YapTaskQueueTests: XCTestCase {
         var currentCount = 0
         let count = 10
         let expectation = self.expectationWithDescription("testMultipleActionsOneThread")
-        let handler = TestHandler { (action) -> Bool in
+        let handler = TestHandler { (action) -> (Bool,NSTimeInterval) in
             
             let nameInt = Int(action.name)
             print("\(currentCount) \(nameInt)")
-            XCTAssert(currentCount == nameInt,"\(currentCount) \(nameInt)")
+            XCTAssert(currentCount == nameInt,"Expect Item: \(currentCount) - Recieved: \(nameInt!)")
             
             
             if (count-1 == currentCount) {
                 expectation.fulfill()
             }
             currentCount += 1
-            return true
+            return (true,0)
         }
         handler.connection = database.newConnection()
         
         let connection = database.newConnection()
         
         
-        let ext = YapTaskQueueBroker(parentViewName: "master", handler: handler, filtering: { (threadName) -> Bool in
+        let ext = YapTaskQueueBroker(parentViewName: "master", handler: handler, filtering: { (queueName) -> Bool in
             return true
         })
         database.registerExtension(ext, withName: "broker")
@@ -211,8 +254,8 @@ class YapTaskQueueTests: XCTestCase {
     
     func testSteup() {
         let database = createDatabase(#function)
-        let handler = TestHandler { (action) -> Bool in
-            return true
+        let handler = TestHandler { (action) -> (Bool,NSTimeInterval) in
+            return (true,0)
         }
         let result = YapTaskQueueBroker.setupWithDatabase(database, name: "queue1", handler: handler) { (queueName) -> Bool in
             return true
@@ -225,12 +268,12 @@ class YapTaskQueueTests: XCTestCase {
     
     func testMultipleActionsMultipleThreads () {
         let database = setupDatabase(#function)
-        let threadCount = 10
+        let threadCount = 5
         for threadIndex in 0..<threadCount {
             let expectation = self.expectationWithDescription("test Multiple \(threadIndex)")
-            let actionCount = (threadIndex+1) * 20
+            let actionCount = (threadIndex+1) * 5
             var currentCount = 0
-            let handler = TestHandler(handleBlock: { (action) -> Bool in
+            let handler = TestHandler(handleBlock: { (action) -> (Bool,NSTimeInterval) in
                 let actionNumber = Int(action.name)!
                 print("\(threadIndex): \(currentCount) - \(actionNumber)")
                 XCTAssertEqual(currentCount, actionNumber,"\(threadIndex): \(currentCount) - \(actionNumber)")
@@ -241,7 +284,7 @@ class YapTaskQueueTests: XCTestCase {
                 
                 currentCount+=1
                 
-                return true
+                return (true,0)
             })
             
             self.setupQueue(database, handler: handler, actionCount: actionCount, name: "\(threadIndex)")
@@ -249,6 +292,73 @@ class YapTaskQueueTests: XCTestCase {
         
         self.waitForExpectationsWithTimeout(1000, handler: nil)
         
+    }
+    
+    func testPausingAction() {
+        let expectation = self.expectationWithDescription(#function)
+        let database = setupDatabase(#function)
+        
+        var count = 0
+        
+        // This handler waits to be called a second time in order to fulfill the expectation. 
+        // The first time through it returns that the action failed and it should wait an indefinite amount of time before restarting the task.
+        let startDate = NSDate()
+        let delay = 2.0
+        let handler = TestHandler { (action) -> (Bool, NSTimeInterval) in
+            print("handled \(count)")
+            
+            count += 1
+            if (count == 2) {
+                let timeDifference = abs(startDate.timeIntervalSinceNow)
+                XCTAssertEqualWithAccuracy(timeDifference, delay, accuracy: 0.5)
+                expectation.fulfill()
+            }
+            return (false,DBL_MAX)
+        }
+        //Setup the queue with one action
+        self.setupQueue(database, handler: handler, actionCount: 1, name: "queue")
+        
+        // After 2 seconds (should be enough time for the action to fail the first time) we tryto restart the queue if it has a paused action.
+        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
+        let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
+        dispatch_after(time, queue) { 
+            if let queue = database.registeredExtension("broker-queue") as? YapTaskQueueBroker {
+                queue.restartQueueIfPaused("queue")
+            }
+        }
+        
+        self.waitForExpectationsWithTimeout(100, handler: nil)
+    }
+    
+    func testPausingActionWithTimeout() {
+        let exectation = self.expectationWithDescription(#function)
+        let database = setupDatabase(#function)
+        let delay = 3.0
+        let startDate = NSDate()
+        var count = 0
+        let handler = TestHandler { (action) -> (Bool, NSTimeInterval) in
+            count += 1
+            
+            //After the first one fails once it then succeeds
+            if count == 2 {
+                let timeDifference = abs(startDate.timeIntervalSinceNow)
+                
+                XCTAssertEqualWithAccuracy(timeDifference, delay, accuracy: 0.5)
+                return (true,0)
+            }
+            // This is the third time through so we're done with the test
+            else if (count == 3) {
+                
+                exectation.fulfill()
+            }
+            
+            return(false,delay)
+        }
+        
+        self.setupQueue(database, handler: handler, actionCount: 2, name: "queue")
+        
+        
+        self.waitForExpectationsWithTimeout(100, handler: nil)
     }
     
 }

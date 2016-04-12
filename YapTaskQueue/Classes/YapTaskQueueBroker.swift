@@ -10,14 +10,19 @@ import Foundation
 import YapDatabase.YapDatabaseFilteredView
 import YapDatabase
 
+internal enum QueueState {
+    case Processing(YapTaskQueueAction)
+    case Paused(NSTimeInterval)
+}
+
 public enum DatabaseStrings:String {
     case YapTasQueueMasterBrokerExtensionName = "YapTasQueueMasterBrokerExtensionName"
 }
 
 public protocol YapTaskQueueHandler {
     
-    /// Theis method is called when an item is available to be exectued
-    func handleNextItem(action:YapTaskQueueAction, completion:(sucess:Bool)->Void)
+    /// Theis method is called when an item is available to be exectued. Call completion once finished with the action item
+    func handleNextItem(action:YapTaskQueueAction, completion:(sucess:Bool, retryTimeout:NSTimeInterval)->Void)
 }
 
 /// YapTaskQueueBroker is a subclass of YapDatabaseFilteredView. It listens for changes and manages the timing of running an action.
@@ -27,13 +32,16 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
     private var databaseConnection:YapDatabaseConnection? = nil
     
     /// This dictionary tracks what is currently going on so that only one item at a time is being executed.
-    private var currentWork = [String:YapTaskQueueAction]()
+    private var currentState = [String:QueueState]()
     
     /// This queue is used to guarentee that changes to the current work dictionary don't have any queue issues.
     private let isolationQueue = dispatch_queue_create("YapTaskQueueExtension", DISPATCH_QUEUE_SERIAL)
     
+    /// This queue is just used for receiving in the NSNotifications
+    private let notificationQueue = NSOperationQueue()
+    
     /// This is where most operations in this class start on.
-    private let operationQueue = NSOperationQueue()
+    private let workQueue = dispatch_queue_create("YapTaskQueueBroker-GCDQUEUE", DISPATCH_QUEUE_SERIAL)
     
     /// This is the Object that completes teh operation and is handed a task to complete.
     public var handler:YapTaskQueueHandler
@@ -48,7 +56,7 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
      
      */
     public init(parentViewName viewName: String, handler:YapTaskQueueHandler, filtering: (queueName:String) -> Bool) {
-        self.operationQueue.maxConcurrentOperationCount = 1
+        self.notificationQueue.maxConcurrentOperationCount = 1
         self.handler = handler
         let filter = YapDatabaseViewFiltering.withKeyBlock { (transaction, group, collection, key) -> Bool in
             return filtering(queueName: group)
@@ -64,22 +72,43 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
         self.didRegisterExtension()
     }
     
-    /// Only way to get the active action for a given queue
+    /// Only way to get the current action for a given queue
     internal func actionForQueue(queue:String) -> YapTaskQueueAction? {
-        var action:YapTaskQueueAction? = nil
-        dispatch_sync(self.isolationQueue) { 
-            action = self.currentWork[queue]
+        
+        
+        //Ensure that some value was stored
+        guard let currentState = self.stateForQueue(queue) else {
+            return nil
         }
-        return action
+        
+        // Only get action if the state was .Processing
+        switch currentState {
+        case .Processing(let action):
+            return action
+        default:
+            return nil
+        }
+    }
+    
+    /// Only way to get the current state for a given queue
+    internal func stateForQueue(queue:String) -> QueueState? {
+        var state:QueueState? = nil
+        
+        // Use isolation queue to access self.currentState
+        dispatch_sync(self.isolationQueue) {
+            state = self.currentState[queue]
+        }
+        
+        return state
     }
     
     /// Only way to set or remove an action from the active action dictionary
-    internal func setAction(action:YapTaskQueueAction?, queueName:String) {
+    internal func setQueueState(state:QueueState?, queueName:String) {
         dispatch_async(self.isolationQueue) {
-            if let act = action {
-                self.currentWork.updateValue(act, forKey: queueName)
+            if let act = state {
+                self.currentState.updateValue(act, forKey: queueName)
             } else {
-                self.currentWork.removeValueForKey(queueName)
+                self.currentState.removeValueForKey(queueName)
             }
         }
     }
@@ -87,7 +116,7 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
     /// Execute on registration with a database
     func didRegisterExtension() {
         
-        NSNotificationCenter.defaultCenter().addObserverForName(YapDatabaseModifiedNotification, object: self.registeredDatabase, queue: self.operationQueue) {[weak self] (notification) in
+        NSNotificationCenter.defaultCenter().addObserverForName(YapDatabaseModifiedNotification, object: self.registeredDatabase, queue: self.notificationQueue) {[weak self] (notification) in
             if let strongSelf = self {
                 strongSelf.processDatabaseNotification(notification)
             }
@@ -124,7 +153,7 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
                 return
             }
             groups = viewTransaction.allGroups()
-            }, completionQueue: self.operationQueue.underlyingQueue, completionBlock: {
+            }, completionQueue: self.workQueue, completionBlock: {
                 if let groupsArray = groups {
                     for groupName in groupsArray {
                         self.checkQueue(groupName)
@@ -137,7 +166,7 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
     /// Go through a queue and check if there is an item to execute and no other action form that queue being executed.
     func checkQueue(queueName:String) {
         var newAction:YapTaskQueueAction? = nil
-        self.databaseConnection?.asyncReadWriteWithBlock({ (transaction) in
+        self.databaseConnection?.readWithBlock({ (transaction) in
             guard let name = self.registeredName else {
                 return
             }
@@ -154,48 +183,82 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
                 
                 let qName = act.queueName()
                 
-                //If currently working don't do anymore work on that queue
-                if self.actionForQueue(qName) == nil {
-                    self.setAction(act, queueName: qName)
+                //If the Queue is not .Processing or .Paused then we have a new action to process
+                if self.stateForQueue(qName) == nil {
                     newAction = act
                 }
                 
                 stop.initialize(true)
             })
-            
-            }, completionQueue: self.operationQueue.underlyingQueue, completionBlock: {
-                guard let action = newAction else {
-                    return
-                }
-                
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
-                    self.handler.handleNextItem(action, completion: { (result) in
-                        if result {
-                            self.databaseConnection?.readWriteWithBlock({ (t) in
-                                t.removeObjectForKey(action.yapKey(), inCollection: action.yapCollection())
-                                self.setAction(nil, queueName: queueName)
-                                
-                            })
-                            
-                            self.operationQueue.addOperationWithBlock({
-                                self.checkQueue(queueName)
-                            })
-                            
-                            
-                        } else {
-                            
-                        }
-                    })
-                    
-                })
         })
+        
+        // If there is a new action then we send it to be handled and update the queue state otherwise we can stop
+        // because the queue is doing something or paused
+        guard let action = newAction else {
+            return
+        }
+        
+        //Set the state correctly as we're about to start processing a new action
+        self.setQueueState(.Processing(action), queueName: queueName)
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+            self.handler.handleNextItem(action, completion: { [weak self] (result, retryTimeout) in
+                if let strongSelf = self {
+                    if result {
+                        strongSelf.databaseConnection?.readWriteWithBlock({ (t) in
+                            t.removeObjectForKey(action.yapKey(), inCollection: action.yapCollection())
+                            strongSelf.setQueueState(nil, queueName: queueName)
+                        })
+                        
+                        dispatch_async(strongSelf.workQueue, { [weak strongSelf] in
+                            strongSelf?.checkQueue(queueName)
+                            })
+                        
+                        
+                    } else if retryTimeout == 0.0 {
+                        strongSelf.checkQueue(queueName)
+                    } else {
+
+                        strongSelf.setQueueState(.Paused(retryTimeout), queueName: queueName)
+                        if retryTimeout > 0 && retryTimeout < (Double(INT64_MAX) / Double(NSEC_PER_SEC)) {
+                            let time = dispatch_time(DISPATCH_TIME_NOW, Int64(retryTimeout * Double(NSEC_PER_SEC)))
+                            dispatch_after(time,strongSelf.workQueue,{ [weak strongSelf] in
+                                strongSelf?.restartQueueIfPaused(queueName)
+                                })
+                        }
+                        
+                    }
+                    
+                }
+            })
+            
+        })
+    }
+    
+    func restartQueueIfPaused(queueName:String) {
+        //Remove paused state
+        if let state = self.stateForQueue(queueName) {
+            switch state {
+            case .Paused:
+                self.setQueueState(nil, queueName: queueName)
+            default:
+                break
+            }
+        }
+        self.checkQueue(queueName)
+    }
+    
+    public func restartQueues(queueNames:[String]) {
+        for name in queueNames {
+            self.restartQueueIfPaused(name)
+        }
     }
     
     deinit {
         self.removeObserver(self, forKeyPath: "registeredDatabase")
     }
     
-    ///Use this method for convience. It automatically ensures a Master Broker is setup and registers teh database views
+    ///Use this method for convience. It automatically ensures a Master Broker is setup and registers the needed database views
     public class func setupWithDatabase(database:YapDatabase, name:String, handler:YapTaskQueueHandler, filtering: (queueName:String) -> Bool) -> Bool
     {
         if database.registeredExtension(DatabaseStrings.YapTasQueueMasterBrokerExtensionName.rawValue) == nil {
