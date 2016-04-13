@@ -22,7 +22,7 @@ public enum DatabaseStrings:String {
 public protocol YapTaskQueueHandler {
     
     /// Theis method is called when an item is available to be exectued. Call completion once finished with the action item
-    func handleNextItem(action:YapTaskQueueAction, completion:(sucess:Bool, retryTimeout:NSTimeInterval)->Void)
+    func handleNextItem(action:YapTaskQueueAction, completion:(success:Bool, retryTimeout:NSTimeInterval)->Void)
 }
 
 /// YapTaskQueueBroker is a subclass of YapDatabaseFilteredView. It listens for changes and manages the timing of running an action.
@@ -55,16 +55,32 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
         - filtering: This block should return true if this broker should handle a particular queue. Each queue is executed synchronously
      
      */
-    public init(parentViewName viewName: String, handler:YapTaskQueueHandler, filtering: (queueName:String) -> Bool) {
+    internal init(parentViewName viewName: String, handler:YapTaskQueueHandler, filtering: (queueName:String) -> Bool) {
         self.notificationQueue.maxConcurrentOperationCount = 1
         self.handler = handler
         let filter = YapDatabaseViewFiltering.withKeyBlock { (transaction, group, collection, key) -> Bool in
+            //Check if this group has already been 'claimed' by a queue broker
             return filtering(queueName: group)
         }
         super.init(parentViewName: viewName, filtering: filter, versionTag: nil, options:nil)
         
         // Best way for now to find when we are registred with a database
         self.addObserver(self, forKeyPath: "registeredDatabase", options: .New, context: nil)
+    }
+    
+    /**
+     Create a new YapTaskQueueBroker. This uses the view name as  prefix for all queues it handles.
+     For example if the viewName is "MessageQueue" this will hanldle all queues that begin with "MessageQueue" like "MessageQueue-buddy1"
+     
+     - parameters:
+        - parentViewName: Should be the view name of the YapTaskQueueMasterBroker
+        - handler: The handler that will be passed the items
+     */
+    public convenience init(parentViewName viewName: String, name:String, handler:YapTaskQueueHandler) {
+        
+        self.init(parentViewName:viewName,handler:handler,filtering: { quename in
+           return quename.hasPrefix(name)
+        })
     }
     
     /// For now this seems to be the best way to find out with we are registred with the database
@@ -258,18 +274,45 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
         self.removeObserver(self, forKeyPath: "registeredDatabase")
     }
     
+}
+extension YapTaskQueueBroker {
+    /**
+     Creates a string that is a queue name that is handled by this queue broker. If this queue broker name is "MessageQueue" then passing "buddy1" as the suffix
+     yields "MessageQueue-buddy1"
+     
+     -parameter suffix: The suffix of the queue name
+     -returns: A queue name that is unique to that suffix and handled by this queue broker
+     */
+    public func queueNameWithSuffix(suffix:String) throws ->  String {
+        guard let name = self.registeredName else {
+            throw YapTaskQueueError.NoRegisteredViewName
+        }
+        return "\(name)-\(suffix)"
+    }
+}
+
+//MARK: Class Methods
+extension YapTaskQueueBroker {
     ///Use this method for convience. It automatically ensures a Master Broker is setup and registers the needed database views
-    public class func setupWithDatabase(database:YapDatabase, name:String, handler:YapTaskQueueHandler, filtering: (queueName:String) -> Bool) -> Bool
+    public class func setupWithDatabase(database:YapDatabase, name:String, handler:YapTaskQueueHandler) throws -> Self
+    {
+        return try setupWithDatabaseHelper(database, name: name, handler: handler)
+    }
+    
+    public class func setupWithDatabaseHelper<T>(database:YapDatabase, name:String, handler:YapTaskQueueHandler) throws -> T
     {
         if database.registeredExtension(DatabaseStrings.YapTasQueueMasterBrokerExtensionName.rawValue) == nil {
             let masterBroker = YapTaskQueueMasterBroker(options: nil)
             let result = database.registerExtension(masterBroker, withName: DatabaseStrings.YapTasQueueMasterBrokerExtensionName.rawValue)
             if !result {
-                return result
+                throw YapTaskQueueError.CannotRegisterMasterView
             }
         }
         
-        let queue = YapTaskQueueBroker(parentViewName: DatabaseStrings.YapTasQueueMasterBrokerExtensionName.rawValue, handler: handler, filtering: filtering)
-        return database.registerExtension(queue, withName: name)
+        let queue = YapTaskQueueBroker(parentViewName: DatabaseStrings.YapTasQueueMasterBrokerExtensionName.rawValue, name:name, handler: handler)
+        if !database.registerExtension(queue, withName: name) {
+            throw YapTaskQueueError.CannotRegisterBrokerView
+        }
+        return queue as! T
     }
 }

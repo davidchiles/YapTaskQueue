@@ -81,15 +81,15 @@ public class TestHandler:YapTaskQueueHandler {
         self.handleBlock = handleBlock
     }
     
-    public func handleNextItem(action: YapTaskQueueAction, completion: (sucess: Bool, retryTimeout: NSTimeInterval) -> Void) {
+    public func handleNextItem(action: YapTaskQueueAction, completion: (success: Bool, retryTimeout: NSTimeInterval) -> Void) {
     
         guard let testObject = action as? TestActionObject  else {
-            completion(sucess: false, retryTimeout: DBL_MAX)
+            completion(success: false, retryTimeout: DBL_MAX)
             return
         }
         
         let (result,retryTimout) =  self.handleBlock(action: testObject)
-        completion(sucess: result, retryTimeout: retryTimout)
+        completion(success: result, retryTimeout: retryTimout)
     }
 }
 
@@ -161,7 +161,7 @@ class YapTaskQueueTests: XCTestCase {
         let firstHanlder = TestHandler { (action) -> (Bool,NSTimeInterval) in
             let newAction = action.copy() as! TestActionObject
             newAction.key = "newKey"
-            newAction.queue = "queue2"
+            newAction.queue = "handler2-queue"
             connection.readWriteWithBlock({ (transaction) in
                 transaction.setObject(newAction, forKey: newAction.yapKey(), inCollection: newAction.yapCollection())
             })
@@ -171,15 +171,10 @@ class YapTaskQueueTests: XCTestCase {
             expectation.fulfill()
             return (true,0)
         }
-        YapTaskQueueBroker.setupWithDatabase(database, name: "handler1", handler: firstHanlder) { (queueName) -> Bool in
-            return queueName == "queue1"
-        }
-        
-        YapTaskQueueBroker.setupWithDatabase(database, name: "handler2", handler: secondHandler) { (queueName) -> Bool in
-            return queueName == "queue2"
-        }
-        
-        let action = TestActionObject(key: "key", collection: "collection", name: "name", queue: "queue1")
+        let handler1 = try! YapTaskQueueBroker.setupWithDatabase(database, name: "handler1", handler: firstHanlder)
+        _ = try! YapTaskQueueBroker.setupWithDatabase(database, name: "handler2", handler: secondHandler)
+        let queueName = try! handler1.queueNameWithSuffix("queue")
+        let action = TestActionObject(key: "key", collection: "collection", name: "name", queue:queueName)
         connection.readWriteWithBlock { (transaction) in
             transaction.setObject(action, forKey: action.yapKey(), inCollection: action.yapCollection())
         }
@@ -257,11 +252,8 @@ class YapTaskQueueTests: XCTestCase {
         let handler = TestHandler { (action) -> (Bool,NSTimeInterval) in
             return (true,0)
         }
-        let result = YapTaskQueueBroker.setupWithDatabase(database, name: "queue1", handler: handler) { (queueName) -> Bool in
-            return true
-        }
-        
-        XCTAssertTrue(result,"Error Setting up database")
+        let broker = try! YapTaskQueueBroker.setupWithDatabase(database, name: "queue1", handler: handler)
+        XCTAssertNotNil(broker,"Error Setting up database")
         let ext = database.registeredExtension("queue1")
         XCTAssertNotNil(ext,"No extension registered")
     }
