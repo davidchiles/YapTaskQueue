@@ -1,4 +1,4 @@
-# YapTaskQueue
+# YapTaskQueue [![Build Status](https://travis-ci.org/davidchiles/YapTaskQueue.svg?branch=master)](https://travis-ci.org/davidchiles/YapTaskQueue)
 A persistent serial queue based on [YapDatabase](https://github.com/yapstudios/YapDatabase).
 
 ## Use

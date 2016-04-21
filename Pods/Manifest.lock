@@ -52,7 +52,7 @@ PODS:
     - YapDatabase/Standard/Core
 
 DEPENDENCIES:
-  - YapDatabase (~> 2.8)
+  - YapDatabase (~> 2.8.0)
 
 SPEC CHECKSUMS:
   CocoaLumberjack: 17fe8581f84914d5d7e6360f7c70022b173c3ae0
