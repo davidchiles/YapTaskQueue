@@ -1,0 +1,6 @@
+framework module YapTaskQueue {
+  umbrella header "YapTaskQueue-umbrella.h"
+
+  export *
+  module * { export * }
+}
