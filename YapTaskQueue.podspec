@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "YapTaskQueue"
-  s.version      = "0.1"
+  s.version      = "0.1.1"
   s.summary      = "A persistent serial queue based on YapDatabase"
 
   # This description is used to generate tags and improve search results.
@@ -78,7 +78,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/davidchiles/YapTaskQueue.git", :tag => "0.1" }
+  s.source       = { :git => "https://github.com/davidchiles/YapTaskQueue.git", :tag => "0.1.1" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -130,6 +130,7 @@ Pod::Spec.new do |s|
   # s.requires_arc = true
 
   # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
-  s.dependency 'YapDatabase', '~> 2.8.0'
+  # This kinda doesn't work because of https://github.com/yapstudios/YapDatabase/issues/308 but will work for chatsecure or until a new version of Yap is sent to trunk
+  s.dependency 'YapDatabase', '~> 2.9'
 
 end
