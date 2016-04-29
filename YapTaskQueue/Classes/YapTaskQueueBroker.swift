@@ -12,7 +12,7 @@ import YapDatabase
 
 internal enum QueueState {
     case Processing(YapTaskQueueAction)
-    case Paused(NSTimeInterval)
+    case Paused(NSDate)
 }
 
 public enum DatabaseStrings:String {
@@ -21,7 +21,9 @@ public enum DatabaseStrings:String {
 
 public protocol YapTaskQueueHandler {
     
-    /// Theis method is called when an item is available to be exectued. Call completion once finished with the action item
+    /** This method is called when an item is available to be exectued. Call completion once finished with the action item.
+     
+     */
     func handleNextItem(action:YapTaskQueueAction, completion:(success:Bool, retryTimeout:NSTimeInterval)->Void)
 }
 
@@ -234,8 +236,8 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
                     } else if retryTimeout == 0.0 {
                         strongSelf.checkQueue(queueName)
                     } else {
-
-                        strongSelf.setQueueState(.Paused(retryTimeout), queueName: queueName)
+                        let date = NSDate(timeIntervalSinceNow: retryTimeout)
+                        strongSelf.setQueueState(.Paused(date), queueName: queueName)
                         if retryTimeout > 0 && retryTimeout < (Double(INT64_MAX) / Double(NSEC_PER_SEC)) {
                             let time = dispatch_time(DISPATCH_TIME_NOW, Int64(retryTimeout * Double(NSEC_PER_SEC)))
                             dispatch_after(time,strongSelf.workQueue,{ [weak strongSelf] in
