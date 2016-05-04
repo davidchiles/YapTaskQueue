@@ -89,7 +89,7 @@ Pod::Spec.new do |s|
   #  Not including the public_header_files will make all headers public.
   #
 
-  s.source_files  = "YapTaskQueue/Classes/**/*.swift"
+
 
   # s.public_header_files = "Classes/**/*.h"
 
@@ -133,10 +133,12 @@ Pod::Spec.new do |s|
   # This kinda doesn't work because of https://github.com/yapstudios/YapDatabase/issues/308 but will work for chatsecure or until a new version of Yap is sent to trunk
   s.default_subspecs = 'Standard'
   s.subspec 'Standard' do |ss|
+    ss.source_files  = "YapTaskQueue/Classes/**/*.swift"
     ss.dependency 'YapDatabase', '~> 2.9'
   end
 
   s.subspec 'SQLCipher' do |ss|
+    ss.source_files  = "YapTaskQueue/Classes/**/*.swift"
     ss.dependency 'YapDatabase/SQLCipher', '~> 2.9'
   end
 
