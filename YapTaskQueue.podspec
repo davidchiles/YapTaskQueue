@@ -89,7 +89,7 @@ Pod::Spec.new do |s|
   #  Not including the public_header_files will make all headers public.
   #
 
-  s.source_files  = "YapTaskQueue/Classes"
+  s.source_files  = "YapTaskQueue/Classes/**/*.swift"
 
   # s.public_header_files = "Classes/**/*.h"
 
