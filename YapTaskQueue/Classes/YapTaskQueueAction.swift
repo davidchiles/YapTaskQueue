@@ -9,7 +9,7 @@
 import Foundation
 
 /// Implement this protocol in order for an action to enter a queue and eventually be passed to a YapTaskQueueHandler
-public protocol YapTaskQueueAction {
+@objc public protocol YapTaskQueueAction {
     /// The yap key of this item
     func yapKey() -> String
     
