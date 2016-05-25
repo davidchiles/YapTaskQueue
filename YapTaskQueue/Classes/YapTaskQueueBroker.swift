@@ -19,7 +19,7 @@ public enum DatabaseStrings:String {
     case YapTasQueueMasterBrokerExtensionName = "YapTasQueueMasterBrokerExtensionName"
 }
 
-public protocol YapTaskQueueHandler {
+@objc public protocol YapTaskQueueHandler {
     
     /** This method is called when an item is available to be exectued. Call completion once finished with the action item.
      
