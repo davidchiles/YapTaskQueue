@@ -81,7 +81,7 @@ public class TestHandler:YapTaskQueueHandler {
         self.handleBlock = handleBlock
     }
     
-    public func handleNextItem(action: YapTaskQueueAction, completion: (success: Bool, retryTimeout: NSTimeInterval) -> Void) {
+    @objc public func handleNextItem(action: YapTaskQueueAction, completion: (success: Bool, retryTimeout: NSTimeInterval) -> Void) {
     
         guard let testObject = action as? TestActionObject  else {
             completion(success: false, retryTimeout: DBL_MAX)
@@ -108,7 +108,7 @@ func createDatabase(suffix:String) -> YapDatabase {
     deleteFiles(baseDir)
     let file = NSURL.fileURLWithPath(#file).lastPathComponent!.componentsSeparatedByString(".").first!
     let name = "\(file)-\(suffix).sqlite"
-    let path = baseDir.URLByAppendingPathComponent(name).path
+    let path = baseDir.URLByAppendingPathComponent(name)!.path
     // Setup datbase
     return YapDatabase(path: path!)
 }

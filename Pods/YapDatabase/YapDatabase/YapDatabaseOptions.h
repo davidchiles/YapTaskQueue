@@ -141,7 +141,7 @@ typedef NSData *_Nonnull (^YapDatabaseCipherKeyBlock)(void);
  * 
  * > #ifdef __APPLE__
  * > # include <TargetConditionals.h>
- * > # if TARGET_OS_IPHONE
+ * > # if TARGET_OS_IOS
  * > #   undef SQLITE_MAX_MMAP_SIZE
  * > #   define SQLITE_MAX_MMAP_SIZE 0
  * > # endif
@@ -265,6 +265,29 @@ typedef NSData *_Nonnull (^YapDatabaseCipherKeyBlock)(void);
  *
 **/
 @property (nonatomic, assign, readwrite) unsigned long long aggressiveWALTruncationSize;
+
+/**
+ * This option enables multiprocess access to the database.
+ *
+ * All read and write operations will continue to function as expected when multiple processes are
+ * concurrently accessing the database, but some optimizations are disabled when using this mode.
+ *
+ * For instance, when a process updates the database, all other processes must clear their cache to
+ * fetch fresh data from the database.
+ *
+ * In the future, we might communicate changes via IPC accross processes, and it might still be possible
+ * to retain most of the cache in each process.
+ *
+ * If you want to be notified when another process has updated the database (for instance to reload a view),
+ * you can add a `CrossProcessNotifier` extension to the database and receive a
+ * `YapDatabaseModifiedExternallyNotification` notification.
+ *
+ * WARNING: if you are using multiple processes with the same database, all processes MUST register the
+ * same database extensions, otherwise unspecified behavior will happen with the creation and removal of
+ * extension tables depending on when each process was started.
+ *
+**/
+@property (nonatomic, assign, readwrite) BOOL enableMultiProcessSupport;
 
 @end
 

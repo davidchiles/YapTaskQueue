@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5607C298E19ED9D08B510A7C /* Pods_YapTaskQueue.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5FAA1E1F74C287857CE4FB /* Pods_YapTaskQueue.framework */; };
+		42D51263B0E4739C61FB0E8D /* Pods_YapTaskQueue.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E5F48A6610998FDFAA2CF81 /* Pods_YapTaskQueue.framework */; };
 		6331FABC1CB46A7E0087E71B /* YapTaskQueueMasterBroker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6331FABB1CB46A7E0087E71B /* YapTaskQueueMasterBroker.swift */; };
 		6371B4C31CBEEBD00010D39F /* YapTaskQueueError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6371B4C21CBEEBCF0010D39F /* YapTaskQueueError.swift */; };
 		6389FB6D1CADD98600B5731A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6389FB6C1CADD98600B5731A /* AppDelegate.swift */; };
@@ -18,6 +18,7 @@
 		6389FB821CADD98600B5731A /* YapTaskQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6389FB811CADD98600B5731A /* YapTaskQueueTests.swift */; };
 		6389FB8E1CADDB2E00B5731A /* YapTaskQueueBroker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6389FB8D1CADDB2E00B5731A /* YapTaskQueueBroker.swift */; };
 		6389FB901CADDCEB00B5731A /* YapTaskQueueAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6389FB8F1CADDCEB00B5731A /* YapTaskQueueAction.swift */; };
+		E760FBAD987DFB93A1A4C325 /* Pods_YapTaskQueueTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FB4F1B4EF784B3B28CAC867 /* Pods_YapTaskQueueTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,7 +32,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		35A90FE5FDBE9D20A3328A3E /* Pods-YapTaskQueue.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YapTaskQueue.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YapTaskQueue/Pods-YapTaskQueue.debug.xcconfig"; sourceTree = "<group>"; };
+		066859DF58742786015B94B8 /* Pods-YapTaskQueueTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YapTaskQueueTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-YapTaskQueueTests/Pods-YapTaskQueueTests.release.xcconfig"; sourceTree = "<group>"; };
+		1A3B06D9388263559C8675E3 /* Pods-YapTaskQueue.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YapTaskQueue.release.xcconfig"; path = "Pods/Target Support Files/Pods-YapTaskQueue/Pods-YapTaskQueue.release.xcconfig"; sourceTree = "<group>"; };
+		1FB4F1B4EF784B3B28CAC867 /* Pods_YapTaskQueueTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_YapTaskQueueTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6331FABB1CB46A7E0087E71B /* YapTaskQueueMasterBroker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = YapTaskQueueMasterBroker.swift; path = Classes/YapTaskQueueMasterBroker.swift; sourceTree = "<group>"; };
 		6371B4C21CBEEBCF0010D39F /* YapTaskQueueError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = YapTaskQueueError.swift; path = Classes/YapTaskQueueError.swift; sourceTree = "<group>"; };
 		6389FB691CADD98500B5731A /* YapTaskQueue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YapTaskQueue.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -46,8 +49,9 @@
 		6389FB831CADD98600B5731A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6389FB8D1CADDB2E00B5731A /* YapTaskQueueBroker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = YapTaskQueueBroker.swift; path = Classes/YapTaskQueueBroker.swift; sourceTree = "<group>"; };
 		6389FB8F1CADDCEB00B5731A /* YapTaskQueueAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = YapTaskQueueAction.swift; path = Classes/YapTaskQueueAction.swift; sourceTree = "<group>"; };
-		6B3EFEE7CF4DD867704D99C0 /* Pods-YapTaskQueue.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YapTaskQueue.release.xcconfig"; path = "Pods/Target Support Files/Pods-YapTaskQueue/Pods-YapTaskQueue.release.xcconfig"; sourceTree = "<group>"; };
-		AA5FAA1E1F74C287857CE4FB /* Pods_YapTaskQueue.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_YapTaskQueue.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E5F48A6610998FDFAA2CF81 /* Pods_YapTaskQueue.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_YapTaskQueue.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8796C1232C4F9D37232C6AD3 /* Pods-YapTaskQueueTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YapTaskQueueTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YapTaskQueueTests/Pods-YapTaskQueueTests.debug.xcconfig"; sourceTree = "<group>"; };
+		8C015906248B191085D5A173 /* Pods-YapTaskQueue.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YapTaskQueue.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YapTaskQueue/Pods-YapTaskQueue.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,7 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5607C298E19ED9D08B510A7C /* Pods_YapTaskQueue.framework in Frameworks */,
+				42D51263B0E4739C61FB0E8D /* Pods_YapTaskQueue.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,20 +67,32 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E760FBAD987DFB93A1A4C325 /* Pods_YapTaskQueueTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1FA12F1AB9036116DD0F301C /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				8C015906248B191085D5A173 /* Pods-YapTaskQueue.debug.xcconfig */,
+				1A3B06D9388263559C8675E3 /* Pods-YapTaskQueue.release.xcconfig */,
+				8796C1232C4F9D37232C6AD3 /* Pods-YapTaskQueueTests.debug.xcconfig */,
+				066859DF58742786015B94B8 /* Pods-YapTaskQueueTests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		6389FB601CADD98500B5731A = {
 			isa = PBXGroup;
 			children = (
 				6389FB6B1CADD98600B5731A /* YapTaskQueue */,
 				6389FB801CADD98600B5731A /* YapTaskQueueTests */,
 				6389FB6A1CADD98500B5731A /* Products */,
-				FBA3043CC97AB5D740842FC4 /* Pods */,
-				AD478FD6263DC8501B81999E /* Frameworks */,
+				1FA12F1AB9036116DD0F301C /* Pods */,
+				644459098281D9D2B72D0D38 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -123,21 +139,13 @@
 			name = Classes;
 			sourceTree = "<group>";
 		};
-		AD478FD6263DC8501B81999E /* Frameworks */ = {
+		644459098281D9D2B72D0D38 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				AA5FAA1E1F74C287857CE4FB /* Pods_YapTaskQueue.framework */,
+				6E5F48A6610998FDFAA2CF81 /* Pods_YapTaskQueue.framework */,
+				1FB4F1B4EF784B3B28CAC867 /* Pods_YapTaskQueueTests.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		FBA3043CC97AB5D740842FC4 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				35A90FE5FDBE9D20A3328A3E /* Pods-YapTaskQueue.debug.xcconfig */,
-				6B3EFEE7CF4DD867704D99C0 /* Pods-YapTaskQueue.release.xcconfig */,
-			);
-			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -147,12 +155,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6389FB861CADD98600B5731A /* Build configuration list for PBXNativeTarget "YapTaskQueue" */;
 			buildPhases = (
-				CBC8A29B8F574AE74C7DB35D /* Check Pods Manifest.lock */,
+				773154C3F34BBCFC4964F9E9 /* [CP] Check Pods Manifest.lock */,
 				6389FB651CADD98500B5731A /* Sources */,
 				6389FB661CADD98500B5731A /* Frameworks */,
 				6389FB671CADD98500B5731A /* Resources */,
-				16E5D75236D8C1B6F7E6944F /* Embed Pods Frameworks */,
-				0B620FDC84D8BE88C4917CC6 /* Copy Pods Resources */,
+				458FB3E2798F0F552D7093BF /* [CP] Embed Pods Frameworks */,
+				E066B051E61A6989C4C6911E /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -167,9 +175,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6389FB891CADD98600B5731A /* Build configuration list for PBXNativeTarget "YapTaskQueueTests" */;
 			buildPhases = (
+				98F9E2ADE8F446DB5DFB84AC /* [CP] Check Pods Manifest.lock */,
 				6389FB791CADD98600B5731A /* Sources */,
 				6389FB7A1CADD98600B5731A /* Frameworks */,
 				6389FB7B1CADD98600B5731A /* Resources */,
+				5EB292E8CCF9CDDE3BCCAB00 /* [CP] Embed Pods Frameworks */,
+				28DB922332F1A96340F927F2 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -193,9 +204,11 @@
 				TargetAttributes = {
 					6389FB681CADD98500B5731A = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 0800;
 					};
 					6389FB7C1CADD98600B5731A = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 0800;
 						TestTargetID = 6389FB681CADD98500B5731A;
 					};
 				};
@@ -240,29 +253,29 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0B620FDC84D8BE88C4917CC6 /* Copy Pods Resources */ = {
+		28DB922332F1A96340F927F2 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-YapTaskQueue/Pods-YapTaskQueue-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-YapTaskQueueTests/Pods-YapTaskQueueTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		16E5D75236D8C1B6F7E6944F /* Embed Pods Frameworks */ = {
+		458FB3E2798F0F552D7093BF /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -270,19 +283,64 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-YapTaskQueue/Pods-YapTaskQueue-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CBC8A29B8F574AE74C7DB35D /* Check Pods Manifest.lock */ = {
+		5EB292E8CCF9CDDE3BCCAB00 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-YapTaskQueueTests/Pods-YapTaskQueueTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		773154C3F34BBCFC4964F9E9 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		98F9E2ADE8F446DB5DFB84AC /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		E066B051E61A6989C4C6911E /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-YapTaskQueue/Pods-YapTaskQueue-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -426,7 +484,7 @@
 		};
 		6389FB871CADD98600B5731A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 35A90FE5FDBE9D20A3328A3E /* Pods-YapTaskQueue.debug.xcconfig */;
+			baseConfigurationReference = 8C015906248B191085D5A173 /* Pods-YapTaskQueue.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = YapTaskQueue/Info.plist;
@@ -434,12 +492,13 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.davidchiles.YapTaskQueue;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
 		6389FB881CADD98600B5731A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6B3EFEE7CF4DD867704D99C0 /* Pods-YapTaskQueue.release.xcconfig */;
+			baseConfigurationReference = 1A3B06D9388263559C8675E3 /* Pods-YapTaskQueue.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = YapTaskQueue/Info.plist;
@@ -447,29 +506,34 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.davidchiles.YapTaskQueue;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};
 		6389FB8A1CADD98600B5731A /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8796C1232C4F9D37232C6AD3 /* Pods-YapTaskQueueTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				INFOPLIST_FILE = YapTaskQueueTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.davidchiles.YapTaskQueueTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 2.3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YapTaskQueue.app/YapTaskQueue";
 			};
 			name = Debug;
 		};
 		6389FB8B1CADD98600B5731A /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 066859DF58742786015B94B8 /* Pods-YapTaskQueueTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				INFOPLIST_FILE = YapTaskQueueTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.davidchiles.YapTaskQueueTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 2.3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YapTaskQueue.app/YapTaskQueue";
 			};
 			name = Release;
