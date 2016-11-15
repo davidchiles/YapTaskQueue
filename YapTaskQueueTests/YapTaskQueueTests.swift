@@ -323,7 +323,7 @@ class YapTaskQueueTests: XCTestCase {
     }
     
     func testPausingActionWithTimeout() {
-        let exectation = self.expectationWithDescription(#function)
+        let expectation = self.expectationWithDescription(#function)
         let database = setupDatabase(#function)
         let delay = 3.0
         let startDate = NSDate()
@@ -341,7 +341,7 @@ class YapTaskQueueTests: XCTestCase {
             // This is the third time through so we're done with the test
             else if (count == 3) {
                 
-                exectation.fulfill()
+                expectation.fulfill()
             }
             
             return(false,delay)
@@ -353,4 +353,28 @@ class YapTaskQueueTests: XCTestCase {
         self.waitForExpectationsWithTimeout(100, handler: nil)
     }
     
+    func testDeletingAction() {
+        let expectation = self.expectationWithDescription(#function)
+        let database = setupDatabase(#function)
+        var count = 0;
+        let handler = TestHandler { (action) -> (Bool, NSTimeInterval) in
+            count += 1
+            
+            if count == 1 {
+                return (false,10)
+            }
+            expectation.fulfill()
+            return (true,0)
+        }
+        
+        self.setupQueue(database, handler: handler, actionCount: 2, name: "queue")
+        let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(1 * Double(NSEC_PER_SEC)))
+        dispatch_after(delayTime, dispatch_get_main_queue()) { 
+            database.newConnection().readWriteWithBlock({ (transaction) in
+                transaction.removeObjectForKey("0", inCollection: "collectionqueue")
+            })
+        }
+        
+        self.waitForExpectationsWithTimeout(5, handler: nil)
+    }
 }

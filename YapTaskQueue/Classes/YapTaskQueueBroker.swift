@@ -12,7 +12,7 @@ import YapDatabase
 
 internal enum QueueState {
     case Processing(YapTaskQueueAction)
-    case Paused(NSDate)
+    case Paused(YapTaskQueueAction,NSDate)
 }
 
 public enum DatabaseStrings:String {
@@ -159,7 +159,7 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
         }
     }
     
-    /// Goes through all the queues and checks if there are more actions to execute
+    /** Goes through all the queues and checks if there are more actions to execute */
     func checkForActions() {
         var groups:[String]? = nil
         self.databaseConnection?.asyncReadWriteWithBlock({ (transaction) in
@@ -181,7 +181,7 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
         })
     }
     
-    /// Go through a queue and check if there is an item to execute and no other action form that queue being executed.
+    /** Go through a queue and check if there is an item to execute and no other action form that queue being executed. */
     func checkQueue(queueName:String) {
         var newAction:YapTaskQueueAction? = nil
         self.databaseConnection?.readWithBlock({ (transaction) in
@@ -193,21 +193,24 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
                 return
             }
             
-            viewTransaction.enumerateKeysAndObjectsInGroup(queueName, usingBlock: { (collection, key, object, row, stop) in
-                
-                guard let act = object as? YapTaskQueueAction else {
-                    return
+            // Check if we have an object in the queue.
+            // If we have no object then clear out the state
+            // If we do have an object it needs to match the item being processed or paused. There can be a mismatch if the item it deleted from the database is deleted.
+            // If it's deleted then we should force ourselves to move to the next item.
+            if let action = viewTransaction.firstObjectInGroup(queueName) as? YapTaskQueueAction {
+                switch self.stateForQueue(queueName) {
+                case let .Some(.Paused(item,_)) where item.yapKey() != action.yapKey() || item.yapCollection() != action.yapCollection():
+                    newAction = action
+                case let .Some(.Processing(item)) where item.yapKey() != action.yapKey() || item.yapCollection() != action.yapCollection():
+                    newAction = action
+                case .None:
+                    newAction = action
+                default:
+                    break
                 }
-                
-                let qName = act.queueName()
-                
-                //If the Queue is not .Processing or .Paused then we have a new action to process
-                if self.stateForQueue(qName) == nil {
-                    newAction = act
-                }
-                
-                stop.initialize(true)
-            })
+            } else {
+                self.setQueueState(nil, queueName: queueName)
+            }
         })
         
         // If there is a new action then we send it to be handled and update the queue state otherwise we can stop
@@ -237,7 +240,7 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
                         strongSelf.checkQueue(queueName)
                     } else {
                         let date = NSDate(timeIntervalSinceNow: retryTimeout)
-                        strongSelf.setQueueState(.Paused(date), queueName: queueName)
+                        strongSelf.setQueueState(.Paused(action,date), queueName: queueName)
                         if retryTimeout > 0 && retryTimeout < (Double(INT64_MAX) / Double(NSEC_PER_SEC)) {
                             let time = dispatch_time(DISPATCH_TIME_NOW, Int64(retryTimeout * Double(NSEC_PER_SEC)))
                             dispatch_after(time,strongSelf.workQueue,{ [weak strongSelf] in
