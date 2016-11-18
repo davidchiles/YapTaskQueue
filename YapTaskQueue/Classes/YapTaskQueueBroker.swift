@@ -45,16 +45,16 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
     /// This is where most operations in this class start on.
     private let workQueue = dispatch_queue_create("YapTaskQueueBroker-GCDQUEUE", DISPATCH_QUEUE_SERIAL)
     
-    /// This is the Object that completes teh operation and is handed a task to complete.
+    /// This is the Object that completes the operation and is handed a task to complete.
     public var handler:YapTaskQueueHandler
     
     /**
      Create a new YapTaskQueueBroker. After created the YapTaskQueueBroker needs to be registered with a database in order to get changes and objects.
      
      - parameters:
-        - parentViewName: Should be the view name of the YapTaskQueueMasterBroker
-        - handler: The handler that will be passed the items
-        - filtering: This block should return true if this broker should handle a particular queue. Each queue is executed synchronously
+     - parentViewName: Should be the view name of the YapTaskQueueMasterBroker
+     - handler: The handler that will be passed the items
+     - filtering: This block should return true if this broker should handle a particular queue. Each queue is executed synchronously
      
      */
     internal init(parentViewName viewName: String, handler:YapTaskQueueHandler, filtering: (queueName:String) -> Bool) {
@@ -75,13 +75,13 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
      For example if the viewName is "MessageQueue" this will hanldle all queues that begin with "MessageQueue" like "MessageQueue-buddy1"
      
      - parameters:
-        - parentViewName: Should be the view name of the YapTaskQueueMasterBroker
-        - handler: The handler that will be passed the items
+     - parentViewName: Should be the view name of the YapTaskQueueMasterBroker
+     - handler: The handler that will be passed the items
      */
     public convenience init(parentViewName viewName: String, name:String, handler:YapTaskQueueHandler) {
         
         self.init(parentViewName:viewName,handler:handler,filtering: { quename in
-           return quename.hasPrefix(name)
+            return quename.hasPrefix(name)
         })
     }
     
@@ -155,6 +155,9 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
         }
         
         if connection.hasChangesForNotifications([notification]) {
+            
+            
+            
             self.checkForActions()
         }
     }
@@ -171,8 +174,18 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
                 return
             }
             groups = viewTransaction.allGroups()
+            
             }, completionQueue: self.workQueue, completionBlock: {
                 if let groupsArray = groups {
+                    
+                    // We need to check all our processing and paused actions to see if their queues are still there.
+                    // If the group is gone then we need to reset the state on that group
+                    let keys = self.currentState.keys
+                    for group in keys where !groupsArray.contains(group) {
+                        self.setQueueState(nil, queueName: group)
+                    }
+                    
+                    
                     for groupName in groupsArray {
                         self.checkQueue(groupName)
                     }
@@ -251,7 +264,7 @@ public class YapTaskQueueBroker: YapDatabaseFilteredView {
                     }
                     
                 }
-            })
+                })
             
         })
     }
