@@ -356,23 +356,57 @@ class YapTaskQueueTests: XCTestCase {
     func testDeletingAction() {
         let expectation = self.expectationWithDescription(#function)
         let database = setupDatabase(#function)
+        let handler = TestHandler { (action) -> (Bool, NSTimeInterval) in
+            if action.name == "0" {
+                return (false,10)
+            } else if action.name == "1" {
+                expectation.fulfill()
+                return (true,0)
+            }
+            XCTAssert(false)
+            return (false,-1)
+        }
+        
+        self.setupQueue(database, handler: handler, actionCount: 2, name: "queue")
+        let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC)))
+        dispatch_after(delayTime, dispatch_get_main_queue()) { 
+            database.newConnection().readWriteWithBlock({ (transaction) in
+                transaction.removeObjectForKey("0", inCollection: "collectionqueue")
+            })
+        }
+        
+        self.waitForExpectationsWithTimeout(5, handler: nil)
+    }
+    
+    func testDeleteingAndAddingAction() {
+        let expectation = self.expectationWithDescription(#function)
+        let database = setupDatabase(#function)
         var count = 0;
+        var act:TestActionObject? = nil
         let handler = TestHandler { (action) -> (Bool, NSTimeInterval) in
             count += 1
             
             if count == 1 {
-                return (false,10)
+                act = action
+                return (false, 10)
             }
             expectation.fulfill()
             return (true,0)
         }
         
-        self.setupQueue(database, handler: handler, actionCount: 2, name: "queue")
-        let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(1 * Double(NSEC_PER_SEC)))
-        dispatch_after(delayTime, dispatch_get_main_queue()) { 
+        self.setupQueue(database, handler: handler, actionCount: 1, name: "queue")
+        let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC)))
+        dispatch_after(delayTime, dispatch_get_main_queue()) {
             database.newConnection().readWriteWithBlock({ (transaction) in
-                transaction.removeObjectForKey("0", inCollection: "collectionqueue")
+                transaction.removeObjectForKey(act!.key, inCollection: act!.collection)
             })
+            dispatch_after(delayTime, dispatch_get_main_queue()) {
+                database.newConnection().readWriteWithBlock({ (transaction) in
+                    
+                    transaction.setObject(act, forKey: act!.key, inCollection: act!.collection)
+                })
+            }
+            
         }
         
         self.waitForExpectationsWithTimeout(5, handler: nil)
