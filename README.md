@@ -14,7 +14,7 @@ To setup create a handler and then register the handler with a name. Then in the
             // return true here if it's a queue that this handler understands and 'handles'
             return true
         }
-  // Or instead of checking the queue name in a black you can just use the broker name as the prefix to a queue.
+  // Or instead of checking the queue name in a closure you can just use the broker name as the prefix to a queue.
   // So in this case any actionItem that returns a queue starting with "handler1" like "handler1-queue2"
 
   let broker = try! YapTaskQueueBroker.setupWithDatabase(database, name: "handler1", handler: handler)
