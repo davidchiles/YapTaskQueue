@@ -9,8 +9,8 @@
 import Foundation
 
 
-public enum YapTaskQueueError: ErrorType {
-    case NoRegisteredViewName
-    case CannotRegisterMasterView
-    case CannotRegisterBrokerView
+public enum YapTaskQueueError: Error {
+    case noRegisteredViewName
+    case cannotRegisterMasterView
+    case cannotRegisterBrokerView
 }

@@ -20,5 +20,5 @@ import Foundation
     func queueName() -> String
     
     /// How this item should be sorted compared to other items in it's queue
-    func sort(otherObject:YapTaskQueueAction) -> NSComparisonResult
+    func sort(_ otherObject:YapTaskQueueAction) -> ComparisonResult
 }

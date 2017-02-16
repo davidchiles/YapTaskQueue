@@ -12,7 +12,7 @@ import YapDatabase.YapDatabaseView
 
 
 ///Only create one of these per database. This is required to filter out all the available actoins. The queue is managed in YapTaskQueueBroker
-public class YapTaskQueueMasterBroker:YapDatabaseView {
+open class YapTaskQueueMasterBroker:YapDatabaseView {
     
     public convenience init(options:YapDatabaseViewOptions?) {
         
@@ -23,12 +23,12 @@ public class YapTaskQueueMasterBroker:YapDatabaseView {
             return actionObject.queueName()
         }
         
-        let sorting = YapDatabaseViewSorting.withObjectBlock { (transaction, group, collection1, key1, object1, collection2, key2, object2) -> NSComparisonResult in
+        let sorting = YapDatabaseViewSorting.withObjectBlock { (transaction, group, collection1, key1, object1, collection2, key2, object2) -> ComparisonResult in
             guard let actionObject1 = object1 as? YapTaskQueueAction else {
-                return .OrderedSame
+                return .orderedSame
             }
             guard let actionObject2 = object2 as? YapTaskQueueAction else {
-                return .OrderedSame
+                return .orderedSame
             }
             
             return actionObject1.sort(actionObject2)
