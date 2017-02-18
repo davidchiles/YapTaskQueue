@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "YapTaskQueue"
-  s.version      = "0.1.5"
+  s.version      = "0.2.0"
   s.summary      = "A persistent serial queue based on YapDatabase"
 
   # This description is used to generate tags and improve search results.
