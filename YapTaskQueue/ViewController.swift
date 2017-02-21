@@ -74,7 +74,7 @@ class MessageSendAction:NSObject, NSCoding, YapTaskQueueAction {
 
 class MessageHandler:YapTaskQueueHandler {
     
-    @objc func handleNextItem(_ action: YapTaskQueueAction, completion: (_ success: Bool, _ retryTimeout: TimeInterval) -> Void) {
+    @objc func handleNextItem(_ action: YapTaskQueueAction, completion:@escaping (_ success: Bool, _ retryTimeout: TimeInterval) -> Void) {
         guard action is MessageSendAction else {
             completion(false, -1)
             return
