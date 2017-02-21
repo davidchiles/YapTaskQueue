@@ -24,7 +24,7 @@ public enum DatabaseStrings:String {
     /** This method is called when an item is available to be exectued. Call completion once finished with the action item.
      
      */
-    func handleNextItem(_ action:YapTaskQueueAction, completion:(_ success:Bool, _ retryTimeout:TimeInterval)->Void)
+    func handleNextItem(_ action:YapTaskQueueAction, completion:@escaping(_ success:Bool, _ retryTimeout:TimeInterval)->Void)
 }
 
 /// YapTaskQueueBroker is a subclass of YapDatabaseFilteredView. It listens for changes and manages the timing of running an action.
