@@ -1,22 +1,15 @@
 language: objective-c
-osx_image: xcode8.2
+osx_image: xcode8.3
 cache: cocoapods
 env:
   global:
-  - IOS_SDK=iphonesimulator9.3
+  - IOS_SDK=iphonesimulator10.3
   - WORKSPACE=YapTaskQueue.xcworkspace
   - POD_WORKSPACE=YapTaskQueueSpecTest/YapTaskQueueSpecTest.xcworkspace
   - IOS_FRAMEWORK_SCHEME=YapTaskQueue
   - POD_IOS_FRAMEWORK_SCHEME=YapTaskQueueSpecTest
   matrix:
-    - DESTINATION="OS=8.1,name=iPhone 4S"          POD_LINT="YES"
-    - DESTINATION="OS=8.2,name=iPhone 5"           POD_LINT="NO"
-    - DESTINATION="OS=8.3,name=iPhone 5S"          POD_LINT="NO"
-    - DESTINATION="OS=8.4,name=iPhone 6"           POD_LINT="NO"
-    - DESTINATION="OS=9.0,name=iPhone 6"           POD_LINT="NO"
-    - DESTINATION="OS=9.1,name=iPhone 6 Plus"      POD_LINT="NO"
-    - DESTINATION="OS=9.2,name=iPhone 6S"          POD_LINT="NO"
-    - DESTINATION="OS=9.3,name=iPhone 6S Plus"     POD_LINT="NO"
+    - DESTINATION="OS=10.3,name=iPhone 7"     POD_LINT="NO"
 script:
   - pod update
   - pod update --project-directory=YapTaskQueueSpecTest/

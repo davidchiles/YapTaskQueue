@@ -8,11 +8,11 @@
 
 import Foundation
 
-import YapDatabase.YapDatabaseView
+import YapDatabase
 
 
 ///Only create one of these per database. This is required to filter out all the available actoins. The queue is managed in YapTaskQueueBroker
-open class YapTaskQueueMasterBroker:YapDatabaseView {
+open class YapTaskQueueMasterBroker:YapDatabaseAutoView {
     
     public convenience init(options:YapDatabaseViewOptions?) {
         
