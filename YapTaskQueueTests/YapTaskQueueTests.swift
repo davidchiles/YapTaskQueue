@@ -81,7 +81,7 @@ open class TestHandler:YapTaskQueueHandler {
         self.handleBlock = handleBlock
     }
     
-    @objc open func handleNextItem(_ action: YapTaskQueueAction, completion: (_ success: Bool, _ retryTimeout: TimeInterval) -> Void) {
+    @objc open func handleNextItem(_ action: YapTaskQueueAction, completion:@escaping (_ success: Bool, _ retryTimeout: TimeInterval) -> Void) {
     
         guard let testObject = action as? TestActionObject  else {
             completion(false, DBL_MAX)

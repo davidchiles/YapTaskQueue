@@ -5,12 +5,12 @@ use_frameworks!
 
 target 'YapTaskQueue' do
 
-pod 'YapDatabase', '~> 2.9'
+pod 'YapDatabase', '~> 3.0'
 
 end
 
 target 'YapTaskQueueTests' do
 
-pod 'YapDatabase', '~> 2.9'
+pod 'YapDatabase', '~> 3.0'
 
 end
